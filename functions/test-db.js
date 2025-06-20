@@ -1,8 +1,7 @@
-// functions/test-db.js - Simple test to verify database connection
-import pg from 'pg'
-const { Client } = pg
+// functions/test-db.js - Fixed CommonJS version
+const { Client } = require('pg')
 
-export const handler = async (event, context) => {
+exports.handler = async (event, context) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -18,6 +17,18 @@ export const handler = async (event, context) => {
     console.log('Testing database connection...')
     console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL)
     console.log('DATABASE_URL length:', process.env.DATABASE_URL?.length || 0)
+    console.log('NODE_ENV:', process.env.NODE_ENV)
+    
+    if (!process.env.DATABASE_URL) {
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ 
+          error: 'DATABASE_URL environment variable not set',
+          environment: process.env.NODE_ENV || 'development'
+        })
+      }
+    }
     
     client = new Client({
       connectionString: process.env.DATABASE_URL,
@@ -52,18 +63,21 @@ export const handler = async (event, context) => {
         timestamp: result.rows[0].current_time,
         version: result.rows[0].postgres_version,
         tables: tables,
-        environment: process.env.NODE_ENV || 'development'
+        environment: process.env.NODE_ENV || 'development',
+        hasRequiredTables: tables.includes('games') && tables.includes('players')
       })
     }
   } catch (error) {
     console.error('Database test error:', error)
+    console.error('Error stack:', error.stack)
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({ 
         error: 'Database test failed',
         details: error.message,
-        stack: error.stack
+        stack: error.stack,
+        environment: process.env.NODE_ENV || 'development'
       })
     }
   } finally {
