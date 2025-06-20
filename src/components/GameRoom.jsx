@@ -7,6 +7,7 @@ import PlayerList from './Multiplayer/PlayerList'
 import CharacterSheet from './UI/CharacterSheet'
 import CharacterCreationModal from './CharacterCreationModal'
 import MonsterManagement from './Game/MonsterManagement'
+import DiceRoller from './Game/DiceRoller'
 import { useGameStore } from '../stores/gameStore'
 
 const GameRoom = () => {
@@ -27,6 +28,7 @@ const GameRoom = () => {
   const [showCharacterSheet, setShowCharacterSheet] = useState(false)
   const [showCharacterCreation, setShowCharacterCreation] = useState(false)
   const [showMonsterManagement, setShowMonsterManagement] = useState(false)
+  const [showDiceRoller, setShowDiceRoller] = useState(false)
 
   // Check if current player has a character
   const playerCharacter = characters.find(char => char.player_id === currentPlayer?.id)
@@ -230,7 +232,10 @@ const GameRoom = () => {
                   >
                     MONSTERS
                   </button>
-                  <button className="ff-button w-full text-xs">
+                  <button 
+                    className="ff-button w-full text-xs"
+                    onClick={() => setShowDiceRoller(true)}
+                  >
                     DICE ROLLER
                   </button>
                 </>
@@ -312,6 +317,12 @@ const GameRoom = () => {
         <MonsterManagement 
           onClose={() => setShowMonsterManagement(false)}
           onSpawnMonster={handleSpawnMonster}
+        />
+      )}
+
+      {showDiceRoller && (
+        <DiceRoller 
+          onClose={() => setShowDiceRoller(false)}
         />
       )}
     </div>
