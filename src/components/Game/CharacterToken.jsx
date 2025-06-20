@@ -108,12 +108,16 @@ const CharacterToken = ({
             src={`/.netlify/functions/get-file/${character.sprite_file_id}`} 
             alt={character.name}
             className="w-full h-full object-cover rounded-full pixel-perfect"
+            onError={(e) => {
+              // Fallback to facing indicator if image fails to load
+              e.target.style.display = 'none'
+              e.target.nextSibling.style.display = 'inline'
+            }}
           />
-        ) : (
-          <span className="text-lg">
-            {getFacingIndicator(character.facing)}
-          </span>
-        )}
+        ) : null}
+        <span className={`text-lg ${character.sprite_file_id ? 'hidden' : 'inline'}`}>
+          {getFacingIndicator(character.facing)}
+        </span>
         
         {/* Status effect overlay */}
         {statusIcon && (
