@@ -1,3 +1,4 @@
+# netlify.toml - Complete configuration
 [build]
   command = "npm run build"
   publish = "dist"
@@ -7,3 +8,20 @@
 
 [functions]
   directory = "functions"
+
+# Function-specific settings
+[[functions]]
+  name = "create-game"
+  path = "functions/create-game.js"
+
+[[functions]]
+  name = "join-game"
+  path = "functions/join-game.js"
+
+[[functions]]
+  name = "get-game"
+  path = "functions/get-game.js"
+
+[[functions]]
+  name = "test-db"
+  path = "functions/test-db.js"
