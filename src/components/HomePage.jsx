@@ -1,4 +1,4 @@
-// src/components/HomePage.jsx
+// src/components/HomePage.jsx - Updated with FF Mystic Quest styling
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import CreateGameModal from './CreateGameModal'
@@ -10,45 +10,91 @@ const HomePage = () => {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="nes-container with-title is-rounded bg-nes-blue max-w-2xl w-full">
-        <p className="title text-white font-pixel text-lg">TomeRPG</p>
-        
-        <div className="text-center space-y-8">
-          <div className="space-y-4">
-            <h1 className="text-white font-pixel text-2xl text-shadow">
-              Tactical Multiplayer Adventure
+    <div className="min-h-screen bg-black flex items-center justify-center p-4">
+      <div className="ff-window max-w-4xl w-full p-6">
+        {/* Title Section */}
+        <div className="text-center space-y-6 mb-8">
+          <div className="ff-stat-window">
+            <h1 className="text-white font-pixel text-3xl text-ff-shadow mb-2">
+              TOME RPG
             </h1>
-            <p className="text-white font-pixel text-sm leading-relaxed">
-              A retro NES-style tactical RPG built for 3-5 players.<br/>
-              One DM controls the world, others control heroes.
-            </p>
+            <div className="ff-stat-row">
+              <span className="ff-stat-label">VERSION</span>
+              <span className="ff-stat-value">1.0</span>
+            </div>
+            <div className="ff-stat-row">
+              <span className="ff-stat-label">PLAYERS</span>
+              <span className="ff-stat-value">3-5</span>
+            </div>
           </div>
+          
+          <p className="text-white font-pixel text-sm leading-relaxed text-ff-shadow">
+            A tactical multiplayer RPG inspired by<br/>
+            Final Fantasy Mystic Quest
+          </p>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Main Menu Options */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="ff-stat-window text-center">
+            <h3 className="ff-stat-label mb-4">NEW ADVENTURE</h3>
             <button 
-              className="nes-btn is-warning font-pixel text-sm h-16"
+              className="ff-button ff-button-green w-full h-16"
               onClick={() => setShowCreateModal(true)}
             >
-              Create New Game
+              CREATE GAME
             </button>
-            
+            <p className="text-white font-pixel text-xs mt-2 text-ff-shadow">
+              Start as Dungeon Master
+            </p>
+          </div>
+          
+          <div className="ff-stat-window text-center">
+            <h3 className="ff-stat-label mb-4">JOIN PARTY</h3>
             <button 
-              className="nes-btn is-success font-pixel text-sm h-16"
+              className="ff-button w-full h-16"
               onClick={() => setShowJoinModal(true)}
             >
-              Join Existing Game
+              JOIN GAME
             </button>
+            <p className="text-white font-pixel text-xs mt-2 text-ff-shadow">
+              Enter with room code
+            </p>
           </div>
+        </div>
 
-          <div className="bg-black bg-opacity-30 p-4 rounded-lg">
-            <h3 className="text-white font-pixel text-xs mb-2">✨ Features:</h3>
-            <ul className="text-white font-pixel text-xs space-y-1 text-left">
-              <li>• 20x20 tactical grid combat</li>
-              <li>• Real-time multiplayer dialogue system</li>
-              <li>• Classic NES aesthetic with modern web tech</li>
-              <li>• Simple but strategic turn-based combat</li>
-            </ul>
+        {/* Features Window */}
+        <div className="ff-window-dark p-4">
+          <h3 className="ff-stat-label mb-4 text-center">GAME FEATURES</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <div className="ff-stat-row">
+                <span className="ff-stat-label">GRID SIZE</span>
+                <span className="ff-stat-value">20x20</span>
+              </div>
+              <div className="ff-stat-row">
+                <span className="ff-stat-label">CLASSES</span>
+                <span className="ff-stat-value">4</span>
+              </div>
+              <div className="ff-stat-row">
+                <span className="ff-stat-label">COMBAT</span>
+                <span className="ff-stat-value">TACTICAL</span>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="ff-stat-row">
+                <span className="ff-stat-label">MULTIPLAYER</span>
+                <span className="ff-stat-value">REAL-TIME</span>
+              </div>
+              <div className="ff-stat-row">
+                <span className="ff-stat-label">DIALOGUE</span>
+                <span className="ff-stat-value">ENHANCED</span>
+              </div>
+              <div className="ff-stat-row">
+                <span className="ff-stat-label">BACKSTAB</span>
+                <span className="ff-stat-value">2X DAMAGE</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
