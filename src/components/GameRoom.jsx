@@ -1,83 +1,175 @@
-// src/components/GameRoom.jsx
+// src/components/GameRoom.jsx - Updated with FF styling
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import GameBoard from './Game/GameBoard'
 import DialoguePopup from './UI/DialoguePopup'
 import PlayerList from './Multiplayer/PlayerList'
+import CharacterSheet from './UI/CharacterSheet'
 import { useGameStore } from '../stores/gameStore'
 
 const GameRoom = () => {
   const { roomCode } = useParams()
   const navigate = useNavigate()
-  const { gameState, currentPlayer, loadGame, isConnected } = useGameStore()
+  const { gameState, currentPlayer, loadGame, isConnected, loading, error } = useGameStore()
   const [showDialogue, setShowDialogue] = useState(false)
+  const [showCharacterSheet, setShowCharacterSheet] = useState(false)
 
   useEffect(() => {
     if (!roomCode) {
       navigate('/')
       return
     }
-
-    // Load game data
     loadGame(roomCode)
   }, [roomCode, navigate, loadGame])
 
+  const handleLeaveGame = () => {
+    navigate('/')
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="ff-dialogue-box p-6">
+          <div className="ff-stat-window text-center">
+            <h3 className="ff-stat-label mb-4">CONNECTING</h3>
+            <p className="text-white font-pixel text-xs text-ff-shadow">
+              Loading game data...
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="ff-dialogue-box p-6">
+          <div className="ff-stat-window text-center">
+            <h3 className="ff-stat-label mb-4 text-red-400">ERROR</h3>
+            <p className="text-white font-pixel text-xs text-ff-shadow mb-4">
+              {error}
+            </p>
+            <button 
+              className="ff-button ff-button-red"
+              onClick={handleLeaveGame}
+            >
+              RETURN HOME
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (!isConnected) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="nes-container is-rounded bg-nes-blue">
-          <p className="text-white font-pixel">Connecting to game...</p>
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="ff-dialogue-box p-6">
+          <div className="ff-stat-window text-center">
+            <h3 className="ff-stat-label mb-4">CONNECTING</h3>
+            <p className="text-white font-pixel text-xs text-ff-shadow">
+              Establishing connection...
+            </p>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-blue-900 p-4">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-screen">
+    <div className="min-h-screen bg-black p-2">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-2 h-screen">
         {/* Main Game Area */}
-        <div className="lg:col-span-3 space-y-4">
-          <div className="nes-container is-rounded bg-nes-blue p-2">
-            <div className="flex justify-between items-center text-white font-pixel text-xs">
-              <span>Room: {roomCode}</span>
-              <span>Turn: {gameState?.currentTurn || 1}</span>
+        <div className="lg:col-span-3 space-y-2">
+          {/* Header */}
+          <div className="ff-window p-3">
+            <div className="flex justify-between items-center">
+              <div className="ff-stat-row">
+                <span className="ff-stat-label">ROOM</span>
+                <span className="ff-stat-value">{roomCode}</span>
+              </div>
+              <div className="ff-stat-row">
+                <span className="ff-stat-label">TURN</span>
+                <span className="ff-stat-value">{gameState?.currentTurn || 1}</span>
+              </div>
               <button 
-                className="nes-btn is-error text-xs"
-                onClick={() => navigate('/')}
+                className="ff-button ff-button-red text-xs"
+                onClick={handleLeaveGame}
               >
-                Leave Game
+                EXIT
               </button>
             </div>
           </div>
           
+          {/* Game Board */}
           <GameBoard />
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-4">
+        <div className="space-y-2">
+          {/* Player List */}
           <PlayerList />
           
-          <div className="nes-container is-rounded bg-nes-blue">
-            <div className="text-white font-pixel text-xs space-y-2">
-              <h3 className="mb-2">Quick Actions</h3>
+          {/* Action Menu */}
+          <div className="ff-window p-3">
+            <div className="ff-stat-window mb-3">
+              <h3 className="ff-stat-label text-center">ACTIONS</h3>
+            </div>
+            
+            <div className="space-y-2">
               <button 
-                className="nes-btn is-warning w-full text-xs mb-2"
+                className="ff-button w-full text-xs"
                 onClick={() => setShowDialogue(true)}
               >
-                Speak
+                SPEAK
               </button>
-              <button className="nes-btn w-full text-xs mb-2">
-                End Turn
+              <button 
+                className="ff-button w-full text-xs"
+                onClick={() => setShowCharacterSheet(true)}
+              >
+                CHARACTER
+              </button>
+              <button className="ff-button w-full text-xs">
+                INVENTORY
+              </button>
+              <button className="ff-button ff-button-green w-full text-xs">
+                END TURN
               </button>
             </div>
           </div>
+
+          {/* Current Player Info */}
+          {currentPlayer && (
+            <div className="ff-window p-3">
+              <div className="ff-stat-window">
+                <div className="ff-stat-row">
+                  <span className="ff-stat-label">PLAYER</span>
+                </div>
+                <div className="ff-stat-row">
+                  <span className="text-white font-pixel text-xs">{currentPlayer.name}</span>
+                </div>
+                <div className="ff-stat-row">
+                  <span className="ff-stat-label">ROLE</span>
+                  <span className="ff-stat-value">{currentPlayer.role.toUpperCase()}</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
+      {/* Modals */}
       {showDialogue && (
         <DialoguePopup 
           onClose={() => setShowDialogue(false)}
           character={currentPlayer?.character}
+        />
+      )}
+
+      {showCharacterSheet && (
+        <CharacterSheet 
+          onClose={() => setShowCharacterSheet(false)}
         />
       )}
     </div>
