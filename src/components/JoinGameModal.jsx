@@ -1,38 +1,22 @@
-// src/components/JoinGameModal.jsx
+// src/components/JoinGameModal.jsx - Updated to use real API
 import React, { useState } from 'react'
+import { useGameStore } from '../stores/gameStore'
 
 const JoinGameModal = ({ onClose, onGameJoined }) => {
   const [roomCode, setRoomCode] = useState('')
   const [playerName, setPlayerName] = useState('')
-  const [loading, setLoading] = useState(false)
+  const { joinGame, loading, error } = useGameStore()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!roomCode.trim() || !playerName.trim()) return
 
-    setLoading(true)
     try {
-      // TODO: Replace with actual API call
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/join-game`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          roomCode: roomCode.trim().toUpperCase(), 
-          playerName: playerName.trim(),
-          role: 'player'
-        })
-      })
-      
-      const data = await response.json()
-      if (data.success) {
-        onGameJoined(roomCode.trim().toUpperCase())
-      }
-    } catch (error) {
-      console.error('Failed to join game:', error)
-      // For now, simulate success for development
+      await joinGame(roomCode.trim().toUpperCase(), playerName.trim())
       onGameJoined(roomCode.trim().toUpperCase())
-    } finally {
-      setLoading(false)
+    } catch (error) {
+      // Error is handled by the store
+      console.error('Failed to join game:', error)
     }
   }
 
@@ -40,6 +24,12 @@ const JoinGameModal = ({ onClose, onGameJoined }) => {
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
       <div className="nes-container with-title is-rounded bg-nes-blue max-w-md w-full">
         <p className="title text-white font-pixel">Join Game</p>
+        
+        {error && (
+          <div className="nes-container is-error mb-4">
+            <p className="text-red-200 font-pixel text-xs">{error}</p>
+          </div>
+        )}
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="nes-field">
@@ -52,6 +42,7 @@ const JoinGameModal = ({ onClose, onGameJoined }) => {
               placeholder="ABC123"
               maxLength={6}
               required
+              disabled={loading}
             />
           </div>
 
@@ -65,6 +56,7 @@ const JoinGameModal = ({ onClose, onGameJoined }) => {
               placeholder="Hero Name"
               maxLength={20}
               required
+              disabled={loading}
             />
           </div>
 
@@ -80,6 +72,7 @@ const JoinGameModal = ({ onClose, onGameJoined }) => {
               type="button"
               className="nes-btn font-pixel text-xs"
               onClick={onClose}
+              disabled={loading}
             >
               Cancel
             </button>
