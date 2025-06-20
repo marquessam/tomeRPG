@@ -1,4 +1,4 @@
-// src/components/CreateGameModal.jsx - Updated to use real API
+// src/components/CreateGameModal.jsx - Updated with FF styling
 import React, { useState } from 'react'
 import { useGameStore } from '../stores/gameStore'
 
@@ -15,45 +15,52 @@ const CreateGameModal = ({ onClose, onGameCreated }) => {
       const roomCode = await createGame(gameName.trim(), playerName.trim())
       onGameCreated(roomCode)
     } catch (error) {
-      // Error is handled by the store
       console.error('Failed to create game:', error)
     }
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-      <div className="nes-container with-title is-rounded bg-nes-blue max-w-md w-full">
-        <p className="title text-white font-pixel">Create New Game</p>
+    <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-50">
+      <div className="ff-dialogue-box max-w-md w-full p-6">
+        <div className="ff-stat-window mb-4">
+          <h2 className="ff-stat-label text-center">CREATE NEW GAME</h2>
+        </div>
         
         {error && (
-          <div className="nes-container is-error mb-4">
-            <p className="text-red-200 font-pixel text-xs">{error}</p>
+          <div className="ff-window-dark p-3 mb-4">
+            <p className="text-red-400 font-pixel text-xs text-ff-shadow text-center">
+              ERROR: {error}
+            </p>
           </div>
         )}
         
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="nes-field">
-            <label className="text-white font-pixel text-xs">Game Name:</label>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="ff-stat-window">
+            <div className="ff-stat-row mb-2">
+              <span className="ff-stat-label">GAME NAME</span>
+            </div>
             <input 
               type="text" 
-              className="nes-input font-pixel text-xs"
+              className="ff-input w-full"
               value={gameName}
               onChange={(e) => setGameName(e.target.value)}
-              placeholder="My Epic Adventure"
+              placeholder="MY EPIC ADVENTURE"
               maxLength={50}
               required
               disabled={loading}
             />
           </div>
 
-          <div className="nes-field">
-            <label className="text-white font-pixel text-xs">Your Name (DM):</label>
+          <div className="ff-stat-window">
+            <div className="ff-stat-row mb-2">
+              <span className="ff-stat-label">DM NAME</span>
+            </div>
             <input 
               type="text" 
-              className="nes-input font-pixel text-xs"
+              className="ff-input w-full"
               value={playerName}
               onChange={(e) => setPlayerName(e.target.value)}
-              placeholder="Dungeon Master"
+              placeholder="DUNGEON MASTER"
               maxLength={20}
               required
               disabled={loading}
@@ -63,18 +70,18 @@ const CreateGameModal = ({ onClose, onGameCreated }) => {
           <div className="flex gap-4">
             <button 
               type="submit" 
-              className="nes-btn is-primary font-pixel text-xs flex-1"
+              className="ff-button ff-button-green flex-1 h-12"
               disabled={loading}
             >
-              {loading ? 'Creating...' : 'Create Game'}
+              {loading ? 'CREATING...' : 'CREATE'}
             </button>
             <button 
               type="button"
-              className="nes-btn font-pixel text-xs"
+              className="ff-button ff-button-red h-12 px-6"
               onClick={onClose}
               disabled={loading}
             >
-              Cancel
+              CANCEL
             </button>
           </div>
         </form>
