@@ -105,7 +105,7 @@ const CharacterToken = ({
         {/* Character sprite or facing indicator */}
         {character.sprite_file_id ? (
           <img 
-            src={`/api/files/${character.sprite_file_id}`} 
+            src={`/.netlify/functions/get-file/${character.sprite_file_id}`} 
             alt={character.name}
             className="w-full h-full object-cover rounded-full pixel-perfect"
           />
