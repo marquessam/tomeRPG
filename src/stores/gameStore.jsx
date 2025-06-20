@@ -299,7 +299,9 @@ export const GameProvider = ({ children }) => {
     }
   }, [state, uploadFile])
 
-  const spawnMonster = useCallback(async (monsterData) => {
+  const updateCharacter = useCallback(async (characterData) => {
+    dispatch({ type: 'UPDATE_CHARACTER', payload: characterData })
+  }, [])
     if (state.currentPlayer?.role !== 'dm') {
       throw new Error('Only DMs can spawn monsters')
     }
@@ -393,6 +395,7 @@ export const GameProvider = ({ children }) => {
     joinGame,
     loadGame,
     createCharacter,
+    updateCharacter,
     spawnMonster,
     moveCharacter,
     attackCharacter,
