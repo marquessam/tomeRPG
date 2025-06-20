@@ -1,0 +1,57 @@
+// index.html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TomeRPG - Tactical Multiplayer Adventure</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/nes.css@latest/css/nes.min.css" rel="stylesheet">
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #1a1a1a;
+        font-family: 'Press Start 2P', monospace;
+        overflow-x: hidden;
+      }
+      
+      .pixel-perfect {
+        image-rendering: -moz-crisp-edges;
+        image-rendering: -webkit-crisp-edges;
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+      }
+      
+      .nes-container {
+        background-color: #0066cc !important;
+        color: white !important;
+      }
+      
+      .grid-cell {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: background-color 0.2s ease;
+      }
+      
+      .grid-cell:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+      
+      .character-token {
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+      
+      .character-token:hover {
+        transform: scale(1.1);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
