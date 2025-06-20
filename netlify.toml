@@ -1,0 +1,19 @@
+[build]
+  command = "npm run build"
+  functions = "functions"
+  publish = "dist"
+
+[dev]
+  command = "npm run dev"
+  port = 3000
+  
+[[functions]]
+  name = "game-sync"
+  path = "functions/game-sync.js"
+
+[[functions]]
+  name = "database"
+  path = "functions/database.js"
+
+[build.environment]
+  NODE_VERSION = "18"
