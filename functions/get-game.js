@@ -1,8 +1,7 @@
-// functions/get-game.js - Function to get game data
-import pg from 'pg'
-const { Client } = pg
+// functions/get-game.js - Fixed CommonJS version
+const { Client } = require('pg')
 
-export const handler = async (event, context) => {
+exports.handler = async (event, context) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -23,8 +22,11 @@ export const handler = async (event, context) => {
 
   let client
   try {
+    console.log('Getting game - path:', event.path)
     // Extract room code from path
     const roomCode = event.path.split('/').pop()
+    
+    console.log('Room code:', roomCode)
     
     if (!roomCode) {
       return {
@@ -34,13 +36,16 @@ export const handler = async (event, context) => {
       }
     }
 
+    console.log('Connecting to database...')
     client = new Client({
       connectionString: process.env.DATABASE_URL,
       ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
     })
     
     await client.connect()
+    console.log('Database connected successfully')
 
+    console.log('Fetching game data...')
     // Get game info
     const gameResult = await client.query(`
       SELECT g.*, gs.turn_order, gs.current_character_id, gs.round_number, gs.phase_data
@@ -58,6 +63,7 @@ export const handler = async (event, context) => {
     }
 
     const game = gameResult.rows[0]
+    console.log('Game found:', game)
 
     // Get players
     const playersResult = await client.query(`
@@ -85,6 +91,8 @@ export const handler = async (event, context) => {
       LIMIT 50
     `, [game.id])
 
+    console.log('Data fetched successfully')
+
     return {
       statusCode: 200,
       headers,
@@ -106,17 +114,24 @@ export const handler = async (event, context) => {
     }
   } catch (error) {
     console.error('Get game error:', error)
+    console.error('Error stack:', error.stack)
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({ 
         error: 'Failed to get game data',
-        details: error.message 
+        details: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
       })
     }
   } finally {
     if (client) {
-      await client.end()
+      try {
+        await client.end()
+        console.log('Database connection closed')
+      } catch (closeError) {
+        console.error('Error closing database connection:', closeError)
+      }
     }
   }
 }
