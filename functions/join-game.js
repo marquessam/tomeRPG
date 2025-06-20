@@ -1,8 +1,7 @@
-// functions/join-game.js - Separate function for joining games
-import pg from 'pg'
-const { Client } = pg
+// functions/join-game.js - Fixed CommonJS version
+const { Client } = require('pg')
 
-export const handler = async (event, context) => {
+exports.handler = async (event, context) => {
   // Handle CORS
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -24,7 +23,20 @@ export const handler = async (event, context) => {
 
   let client
   try {
-    const { roomCode, playerName, role = 'player' } = JSON.parse(event.body)
+    console.log('Joining game - parsing body...')
+    const { roomCode, playerName, role = 'player' } = JSON.parse(event.body || '{}')
+    
+    console.log('Parsed data:', { roomCode, playerName, role })
+    
+    if (!roomCode || !playerName) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Room code and player name are required' })
+      }
+    }
+
+    console.log('Connecting to database...')
     
     // Create database client
     client = new Client({
@@ -33,7 +45,9 @@ export const handler = async (event, context) => {
     })
     
     await client.connect()
+    console.log('Database connected successfully')
 
+    console.log('Finding game...')
     // Find game
     const gameResult = await client.query(`
       SELECT id, name, status FROM games WHERE room_code = $1
@@ -48,6 +62,7 @@ export const handler = async (event, context) => {
     }
 
     const game = gameResult.rows[0]
+    console.log('Game found:', game)
 
     // Check if game is joinable
     if (game.status !== 'waiting' && game.status !== 'active') {
@@ -73,6 +88,7 @@ export const handler = async (event, context) => {
     const usedColors = await client.query('SELECT color FROM players WHERE game_id = $1', [game.id])
     const availableColor = colors.find(color => !usedColors.rows.some(row => row.color === color)) || '#9c88ff'
 
+    console.log('Creating player...')
     // Create player
     const playerResult = await client.query(`
       INSERT INTO players (game_id, name, role, is_connected, color) 
@@ -80,28 +96,38 @@ export const handler = async (event, context) => {
       RETURNING id, name, role, color
     `, [game.id, playerName, role, availableColor])
 
+    const player = playerResult.rows[0]
+    console.log('Player created:', player)
+
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({
         success: true,
         gameId: game.id,
-        player: playerResult.rows[0]
+        player: player
       })
     }
   } catch (error) {
     console.error('Join game error:', error)
+    console.error('Error stack:', error.stack)
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({ 
         error: 'Failed to join game',
-        details: error.message 
+        details: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
       })
     }
   } finally {
     if (client) {
-      await client.end()
+      try {
+        await client.end()
+        console.log('Database connection closed')
+      } catch (closeError) {
+        console.error('Error closing database connection:', closeError)
+      }
     }
   }
 }
