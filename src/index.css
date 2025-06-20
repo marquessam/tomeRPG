@@ -1,3 +1,4 @@
+// src/index.css - Updated with authentic FF Mystic Quest styling
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
@@ -15,46 +16,263 @@
     margin: 0;
     padding: 0;
     font-family: 'Press Start 2P', monospace;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    background: #000408;
     color: white;
     min-height: 100vh;
   }
 }
 
 @layer components {
-  .nes-btn-custom {
-    @apply bg-nes-blue border-2 border-white text-white font-pixel text-xs px-4 py-2 cursor-pointer transition-all duration-200;
+  .ff-window {
+    background: linear-gradient(135deg, #1a237e 0%, #0d47a1 50%, #1565c0 100%);
+    border: 3px solid #ffffff;
+    border-radius: 0;
+    box-shadow: 
+      inset 0 0 0 1px #64b5f6,
+      0 4px 8px rgba(0,0,0,0.5);
   }
   
-  .nes-btn-custom:hover {
-    @apply bg-nes-dark-blue transform scale-105;
+  .ff-window-dark {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2d2d2d 100%);
+    border: 3px solid #ffffff;
+    box-shadow: 
+      inset 0 0 0 1px #666666,
+      0 4px 8px rgba(0,0,0,0.5);
   }
   
-  .dialogue-box {
-    @apply bg-nes-blue border-4 border-white p-4 rounded-lg shadow-2xl;
+  .ff-button {
+    background: linear-gradient(135deg, #1976d2 0%, #1565c0 50%, #0d47a1 100%);
+    border: 2px solid #ffffff;
+    color: white;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-shadow: 1px 1px 0px #000000;
+    box-shadow: inset 0 0 0 1px #64b5f6;
   }
   
-  .health-bar {
-    @apply bg-nes-red h-4 transition-all duration-500 ease-out;
+  .ff-button:hover {
+    background: linear-gradient(135deg, #2196f3 0%, #1976d2 50%, #1565c0 100%);
+    transform: translateY(-1px);
+    box-shadow: 
+      inset 0 0 0 1px #90caf9,
+      0 2px 4px rgba(0,0,0,0.3);
   }
   
-  .mp-bar {
-    @apply bg-blue-500 h-4 transition-all duration-500 ease-out;
+  .ff-button:active {
+    transform: translateY(0);
+    box-shadow: inset 0 0 0 1px #42a5f5;
   }
   
-  .grid-overlay {
+  .ff-button-green {
+    background: linear-gradient(135deg, #388e3c 0%, #2e7d32 50%, #1b5e20 100%);
+    box-shadow: inset 0 0 0 1px #81c784;
+  }
+  
+  .ff-button-green:hover {
+    background: linear-gradient(135deg, #4caf50 0%, #388e3c 50%, #2e7d32 100%);
+    box-shadow: 
+      inset 0 0 0 1px #a5d6a7,
+      0 2px 4px rgba(0,0,0,0.3);
+  }
+  
+  .ff-button-red {
+    background: linear-gradient(135deg, #d32f2f 0%, #c62828 50%, #b71c1c 100%);
+    box-shadow: inset 0 0 0 1px #e57373;
+  }
+  
+  .ff-button-red:hover {
+    background: linear-gradient(135deg, #f44336 0%, #d32f2f 50%, #c62828 100%);
+    box-shadow: 
+      inset 0 0 0 1px #ef5350,
+      0 2px 4px rgba(0,0,0,0.3);
+  }
+  
+  .ff-input {
+    background: #000000;
+    border: 2px solid #ffffff;
+    color: #ffffff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    padding: 8px;
+    box-shadow: 
+      inset 2px 2px 4px rgba(0,0,0,0.5),
+      inset 0 0 0 1px #333333;
+  }
+  
+  .ff-input:focus {
+    outline: none;
+    border-color: #64b5f6;
+    box-shadow: 
+      inset 2px 2px 4px rgba(0,0,0,0.5),
+      inset 0 0 0 1px #1976d2,
+      0 0 8px rgba(100, 181, 246, 0.3);
+  }
+  
+  .ff-stat-window {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    border: 2px solid #ffffff;
+    padding: 12px;
+    margin: 4px;
+  }
+  
+  .ff-stat-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    font-size: 11px;
+  }
+  
+  .ff-stat-label {
+    color: #ffffff;
+    text-shadow: 1px 1px 0px #000000;
+  }
+  
+  .ff-stat-value {
+    color: #ffff00;
+    text-shadow: 1px 1px 0px #000000;
+  }
+  
+  .ff-health-bar {
+    background: #1a1a1a;
+    border: 1px solid #ffffff;
+    height: 8px;
+    position: relative;
+    margin: 4px 0;
+  }
+  
+  .ff-health-fill {
+    height: 100%;
+    transition: width 0.5s ease;
+  }
+  
+  .ff-health-high {
+    background: linear-gradient(90deg, #4caf50 0%, #8bc34a 100%);
+  }
+  
+  .ff-health-medium {
+    background: linear-gradient(90deg, #ff9800 0%, #ffc107 100%);
+  }
+  
+  .ff-health-low {
+    background: linear-gradient(90deg, #f44336 0%, #ff5722 100%);
+  }
+  
+  .ff-mp-bar {
+    background: #1a1a1a;
+    border: 1px solid #ffffff;
+    height: 8px;
+    position: relative;
+    margin: 4px 0;
+  }
+  
+  .ff-mp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #2196f3 0%, #03a9f4 100%);
+    transition: width 0.5s ease;
+  }
+  
+  .ff-grid {
+    background: #0d1117;
+    border: 3px solid #ffffff;
     background-image: 
       linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
   }
+  
+  .ff-character-token {
+    border: 2px solid #ffffff;
+    box-shadow: 
+      0 0 8px rgba(255,255,255,0.3),
+      inset 0 0 4px rgba(255,255,255,0.2);
+    transition: all 0.3s ease;
+  }
+  
+  .ff-character-token:hover {
+    transform: scale(1.1);
+    box-shadow: 
+      0 0 12px rgba(255,255,255,0.5),
+      inset 0 0 6px rgba(255,255,255,0.3);
+  }
+  
+  .ff-character-selected {
+    border-color: #ffff00;
+    box-shadow: 
+      0 0 16px rgba(255,255,0,0.6),
+      inset 0 0 8px rgba(255,255,0,0.3);
+    animation: pulse-yellow 1s infinite;
+  }
+  
+  @keyframes pulse-yellow {
+    0%, 100% { 
+      box-shadow: 
+        0 0 16px rgba(255,255,0,0.6),
+        inset 0 0 8px rgba(255,255,0,0.3);
+    }
+    50% { 
+      box-shadow: 
+        0 0 24px rgba(255,255,0,0.8),
+        inset 0 0 12px rgba(255,255,0,0.5);
+    }
+  }
+  
+  .ff-dialogue-box {
+    background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+    border: 3px solid #ffffff;
+    box-shadow: 
+      inset 0 0 0 1px #64b5f6,
+      0 8px 16px rgba(0,0,0,0.5);
+  }
+  
+  .ff-portrait {
+    background: #000000;
+    border: 2px solid #ffffff;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    box-shadow: inset 2px 2px 4px rgba(0,0,0,0.5);
+  }
+  
+  .ff-equipment-slot {
+    background: #000000;
+    border: 1px solid #666666;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1px;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .ff-equipment-slot:hover {
+    border-color: #ffffff;
+    background: #1a1a1a;
+  }
+  
+  .ff-equipment-equipped {
+    border-color: #ffff00;
+    background: #2a2a00;
+  }
 }
 
 @layer utilities {
-  .text-shadow {
-    text-shadow: 2px 2px 0px #000000;
+  .text-ff-shadow {
+    text-shadow: 1px 1px 0px #000000;
   }
   
-  .pixel-border {
-    border-image: url("data:image/svg+xml,%3csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m8,8h84v84h-84z' fill='none' stroke='white' stroke-width='2'/%3e%3c/svg%3e") 8;
+  .pixel-perfect {
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
   }
 }
