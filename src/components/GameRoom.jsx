@@ -7,6 +7,7 @@ import PlayerList from './Multiplayer/PlayerList'
 import CharacterSheet from './UI/CharacterSheet'
 import CharacterCreationModal from './CharacterCreationModal'
 import MonsterManagement from './Game/MonsterManagement'
+import CharacterInventory from './UI/CharacterInventory'
 import DiceRoller from './Game/DiceRoller'
 import { useGameStore } from '../stores/gameStore'
 
@@ -29,6 +30,7 @@ const GameRoom = () => {
   const [showCharacterCreation, setShowCharacterCreation] = useState(false)
   const [showMonsterManagement, setShowMonsterManagement] = useState(false)
   const [showDiceRoller, setShowDiceRoller] = useState(false)
+  const [showInventory, setShowInventory] = useState(false)
 
   // Check if current player has a character
   const playerCharacter = characters.find(char => char.player_id === currentPlayer?.id)
@@ -221,7 +223,11 @@ const GameRoom = () => {
               >
                 CHARACTER
               </button>
-              <button className="ff-button w-full text-xs" disabled={!playerCharacter}>
+              <button 
+                className="ff-button w-full text-xs"
+                onClick={() => setShowInventory(true)}
+                disabled={!playerCharacter}
+              >
                 INVENTORY
               </button>
               {currentPlayer?.role === 'dm' && (
@@ -323,6 +329,12 @@ const GameRoom = () => {
       {showDiceRoller && (
         <DiceRoller 
           onClose={() => setShowDiceRoller(false)}
+        />
+      )}
+
+      {showInventory && (
+        <CharacterInventory 
+          onClose={() => setShowInventory(false)}
         />
       )}
     </div>
