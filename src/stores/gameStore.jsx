@@ -1,4 +1,4 @@
-// src/stores/gameStore.jsx - Updated to use separate function endpoints
+// src/stores/gameStore.jsx - Enhanced with file upload and character creation
 import React, { createContext, useContext, useReducer, useCallback } from 'react'
 
 const GameContext = createContext()
@@ -35,12 +35,22 @@ const gameReducer = (state, action) => {
       }
     case 'SET_CURRENT_PLAYER':
       return { ...state, currentPlayer: action.payload }
+    case 'ADD_CHARACTER':
+      return {
+        ...state,
+        characters: [...state.characters, action.payload]
+      }
     case 'UPDATE_CHARACTER':
       return {
         ...state,
         characters: state.characters.map(char => 
           char.id === action.payload.id ? { ...char, ...action.payload } : char
         )
+      }
+    case 'REMOVE_CHARACTER':
+      return {
+        ...state,
+        characters: state.characters.filter(char => char.id !== action.payload)
       }
     case 'ADD_MESSAGE':
       return { ...state, messages: [...state.messages, action.payload] }
@@ -55,6 +65,46 @@ const gameReducer = (state, action) => {
 
 export const GameProvider = ({ children }) => {
   const [state, dispatch] = useReducer(gameReducer, initialState)
+
+  // File upload utility
+  const uploadFile = useCallback(async (file, uploadedBy = null) => {
+    try {
+      // Convert file to base64
+      const base64Data = await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => {
+          const base64 = reader.result.split(',')[1] // Remove data:image/... prefix
+          resolve(base64)
+        }
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+
+      const response = await fetch(`${API_BASE}/upload-file`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fileName: file.name,
+          fileData: base64Data,
+          fileType: file.type,
+          uploadedBy
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.status}`)
+      }
+
+      const result = await response.json()
+      return result.file.id
+
+    } catch (error) {
+      console.error('File upload error:', error)
+      throw error
+    }
+  }, [])
 
   const createGame = useCallback(async (gameName, playerName) => {
     dispatch({ type: 'SET_LOADING', payload: true })
@@ -182,45 +232,96 @@ export const GameProvider = ({ children }) => {
     }
   }, [])
 
-  // For now, we'll add mock functions for other operations
-  const createCharacter = useCallback(async (name, characterClass) => {
-    // TODO: Implement when backend is working
-    console.log('Create character:', { name, characterClass })
-    
-    // Mock character for testing
-    const mockCharacter = {
-      id: Date.now(),
-      name,
-      class: characterClass,
-      player_id: state.currentPlayer?.id,
-      hp: 25,
-      max_hp: 25,
-      mp: 10,
-      max_mp: 10,
-      attack: 8,
-      defense: 5,
-      speed: 5,
-      grid_x: Math.floor(Math.random() * 20),
-      grid_y: Math.floor(Math.random() * 20),
-      facing: 'down'
+  const createCharacter = useCallback(async (characterData) => {
+    if (!state.currentPlayer || !state.gameState) {
+      throw new Error('No active game or player')
     }
+
+    dispatch({ type: 'SET_LOADING', payload: true })
+    dispatch({ type: 'CLEAR_ERROR' })
     
-    dispatch({ 
-      type: 'SET_GAME_DATA', 
-      payload: {
-        ...state,
-        characters: [...state.characters, mockCharacter]
+    try {
+      console.log('Creating character:', characterData)
+
+      let portraitFileId = null
+      let spriteFileId = null
+
+      // Upload files if provided
+      if (characterData.portraitFile) {
+        console.log('Uploading portrait...')
+        portraitFileId = await uploadFile(characterData.portraitFile, state.currentPlayer.id)
       }
-    })
-    
-    return mockCharacter
+
+      if (characterData.spriteFile) {
+        console.log('Uploading sprite...')
+        spriteFileId = await uploadFile(characterData.spriteFile, state.currentPlayer.id)
+      }
+
+      // Create character
+      const response = await fetch(`${API_BASE}/create-character`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          gameId: state.gameState.id,
+          playerId: state.currentPlayer.id,
+          name: characterData.name,
+          characterClass: characterData.class,
+          selectedPowers: characterData.powers || [],
+          portraitFileId,
+          spriteFileId
+        })
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('Create character error response:', errorText)
+        throw new Error(`Server error: ${response.status}`)
+      }
+
+      const data = await response.json()
+      console.log('Create character response:', data)
+
+      if (data.success) {
+        dispatch({ type: 'ADD_CHARACTER', payload: data.character })
+        dispatch({ type: 'SET_LOADING', payload: false })
+        return data.character
+      } else {
+        throw new Error(data.error || 'Failed to create character')
+      }
+
+    } catch (error) {
+      console.error('Create character error:', error)
+      dispatch({ type: 'SET_ERROR', payload: error.message })
+      throw error
+    }
+  }, [state, uploadFile])
+
+  const spawnMonster = useCallback(async (monsterData) => {
+    if (state.currentPlayer?.role !== 'dm') {
+      throw new Error('Only DMs can spawn monsters')
+    }
+
+    // For now, add monster locally (TODO: implement backend)
+    const monster = {
+      ...monsterData,
+      id: `monster_${Date.now()}_${Math.random()}`,
+      player_id: null,
+      is_npc: true,
+      created_at: new Date().toISOString()
+    }
+
+    dispatch({ type: 'ADD_CHARACTER', payload: monster })
+    return monster
   }, [state])
 
   const moveCharacter = useCallback(async (characterId, x, y, facing) => {
     console.log('Move character:', { characterId, x, y, facing })
     dispatch({ 
       type: 'UPDATE_CHARACTER', 
-      payload: { id: characterId, grid_x: x, grid_y: y, facing } 
+      payload: { id: characterId, grid_x: x, grid_y: y, facing, has_moved: true } 
     })
   }, [])
 
@@ -230,19 +331,61 @@ export const GameProvider = ({ children }) => {
     if (targetCharacter) {
       const newHp = Math.max(0, targetCharacter.hp - damage)
       dispatch({ type: 'UPDATE_CHARACTER', payload: { id: targetId, hp: newHp } })
+      
+      // Add combat message
+      const attacker = state.characters.find(c => c.id === attackerId)
+      const message = {
+        id: Date.now(),
+        content: `${attacker?.name || 'Someone'} attacks ${targetCharacter.name} for ${damage} damage!`,
+        timestamp: new Date(),
+        messageType: 'combat',
+        gameId: state.gameState?.id
+      }
+      dispatch({ type: 'ADD_MESSAGE', payload: message })
     }
-  }, [state.characters])
+  }, [state.characters, state.gameState])
 
-  const sendMessage = useCallback((message, character) => {
-    console.log('Send message:', { message, character })
-    dispatch({ type: 'ADD_MESSAGE', payload: {
+  const usePower = useCallback(async (characterId, powerId, targets = []) => {
+    console.log('Use power:', { characterId, powerId, targets })
+    
+    // Mark character as having acted
+    dispatch({ 
+      type: 'UPDATE_CHARACTER', 
+      payload: { id: characterId, has_acted: true } 
+    })
+
+    // TODO: Implement power effects, damage calculation, etc.
+  }, [])
+
+  const sendMessage = useCallback((content, character = null) => {
+    console.log('Send message:', { content, character })
+    const message = {
       id: Date.now(),
-      content: message,
+      content,
       timestamp: new Date(),
       character,
-      player: state.currentPlayer
-    }})
+      player: state.currentPlayer,
+      messageType: 'dialogue'
+    }
+    dispatch({ type: 'ADD_MESSAGE', payload: message })
   }, [state.currentPlayer])
+
+  const endTurn = useCallback(async (characterId) => {
+    console.log('End turn for character:', characterId)
+    
+    // Reset character actions
+    dispatch({
+      type: 'UPDATE_CHARACTER',
+      payload: { id: characterId, has_acted: false, has_moved: false }
+    })
+
+    // TODO: Advance to next character in turn order
+  }, [])
+
+  const getFileUrl = useCallback((fileId) => {
+    if (!fileId) return null
+    return `${API_BASE}/get-file/${fileId}`
+  }, [])
 
   const value = {
     ...state,
@@ -250,9 +393,14 @@ export const GameProvider = ({ children }) => {
     joinGame,
     loadGame,
     createCharacter,
+    spawnMonster,
     moveCharacter,
     attackCharacter,
-    sendMessage
+    usePower,
+    sendMessage,
+    endTurn,
+    uploadFile,
+    getFileUrl
   }
 
   return (
